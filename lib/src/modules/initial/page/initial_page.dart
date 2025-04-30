@@ -1,72 +1,69 @@
-import 'dart:async';
-
-import 'package:fast_location/src/routes/app_router.dart';
-import 'package:fast_location/src/shared/colors/app_colors.dart';
 import 'package:flutter/material.dart';
+import '../../../routes/app_routes.dart';
 
 class InitialPage extends StatefulWidget {
-  const InitialPage({super.key});
+  const InitialPage({Key? key}) : super(key: key);
 
   @override
   State<InitialPage> createState() => _InitialPageState();
 }
 
-class _InitialPageState extends State<InitialPage>
-    with TickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(
-    duration: const Duration(seconds: 2),
-    vsync: this,
-  )..repeat(reverse: true);
+class _InitialPageState extends State<InitialPage> with SingleTickerProviderStateMixin {
+  late AnimationController controller;
+  late Animation<double> animation;
 
-  late final Animation<double> _animation = CurvedAnimation(
-    parent: _controller,
-    curve: Curves.elasticOut,
-  );
-  void redirect(BuildContext context) {
-    Timer(const Duration(seconds: 3), () async {
-      Navigator.of(context).pushReplacementNamed(AppRouter.home);
+  @override
+  void initState() {
+    super.initState();
+    controller = AnimationController(
+      duration: Duration(seconds: 2),
+      vsync: this,
+    );
+    
+    animation = CurvedAnimation(
+      parent: controller,
+      curve: Curves.easeInOut,
+    );
+    
+    controller.forward();
+    
+    Future.delayed(Duration(seconds: 3), () {
+      Navigator.pushReplacementNamed(context, AppRoutes.home);
     });
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    redirect(context);
     return Scaffold(
-      backgroundColor: AppColors.appPageBackground,
-      body: SafeArea(
-          child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const Padding(
-              padding: EdgeInsets.only(bottom: 10),
-              child: Text("Fast Location",
-                  style: TextStyle(
-                      color: Colors.green,
-                      fontSize: 40,
-                      fontWeight: FontWeight.bold)),
-            ),
-            RotationTransition(
-              turns: _animation,
-              child: const Padding(
-                  padding: EdgeInsets.all(8),
-                  child: Icon(
-                    size: 150,
-                    color: Colors.green,
-                    Icons.directions,
-                  )),
-            )
-          ],
+      body: Center(
+        child: FadeTransition(
+          opacity: animation,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.location_on,
+                size: 100,
+                color: Colors.blue,
+              ),
+              SizedBox(height: 20),
+              Text(
+                'Consulta CEP',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
         ),
-      )),
+      ),
     );
   }
 }

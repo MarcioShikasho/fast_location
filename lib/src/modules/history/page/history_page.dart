@@ -1,86 +1,78 @@
-import 'package:fast_location/src/modules/history/controller/history_controller.dart';
-import 'package:fast_location/src/modules/home/components/address_list.dart';
-import 'package:fast_location/src/shared/colors/app_colors.dart';
-import 'package:fast_location/src/shared/components/app_loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:map_launcher/map_launcher.dart';
+
+import 'package:intl/intl.dart';
+import '../../home/components/address_item.dart';
+import '../controller/history_controller.dart';
 
 class HistoryPage extends StatefulWidget {
-  const HistoryPage({super.key});
+  const HistoryPage({Key? key}) : super(key: key);
 
   @override
   State<HistoryPage> createState() => _HistoryPageState();
 }
 
 class _HistoryPageState extends State<HistoryPage> {
-  final HistoryController _controller = HistoryController();
+  final controller = HistoryController();
 
   @override
   void initState() {
     super.initState();
-    _controller.loadData();
+    controller.loadAddresses();
+  }
+
+  void _openMap(String address) async {
+    try {
+      final maps = await MapLauncher.installedMaps;
+      
+      if (maps.isNotEmpty) {
+        await maps.first.showMarker(
+          coords: Coords(0, 0),
+          title: address,
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao abrir mapa'),
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Observer(builder: (_) {
-      return _controller.isLoading
-          ? const AppLoading()
-          : Scaffold(
-              appBar: AppBar(
-                backgroundColor: AppColors.appPageBackground,
-                elevation: 0,
-                leading: IconButton(
-                  icon: const Icon(
-                    Icons.arrow_back,
-                    color: Colors.green,
-                  ),
-                  onPressed: () => Navigator.pop(context),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Histórico'),
+      ),
+      body: Observer(
+        builder: (_) {
+          if (controller.addresses.isEmpty) {
+            return Center(
+              child: Text('Nenhum endereço no histórico'),
+            );
+          }
+          
+          return ListView.builder(
+            itemCount: controller.addresses.length,
+            itemBuilder: (context, index) {
+              final address = controller.addresses[index];
+              return AddressItem(
+                title: 'Busca #${index + 1}', // ou algo mais descritivo
+                address: address.fullAddress,
+                date: DateFormat('dd/MM/yyyy – HH:mm').format(
+                  address.searchDate ?? DateTime.now(),
                 ),
-              ),
-              backgroundColor: AppColors.appPageBackground,
-              body: SingleChildScrollView(
-                child: SafeArea(
-                    child: Center(
-                  child: Padding(
-                      padding: const EdgeInsets.only(
-                        top: 20,
-                        left: 25,
-                        right: 25,
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.max,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Icon(
-                                Icons.share_location,
-                                size: 30,
-                                color: Colors.green,
-                              ),
-                              SizedBox(
-                                width: 10,
-                              ),
-                              Text("Endereços Localizados",
-                                  style: TextStyle(
-                                      color: Colors.green,
-                                      fontSize: 25,
-                                      fontStyle: FontStyle.italic,
-                                      fontWeight: FontWeight.bold))
-                            ],
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 20),
-                            child: AddressList(
-                              addressList: _controller.addressHistoryList,
-                            ),
-                          ),
-                        ],
-                      )),
-                )),
-              ));
-    });
+                onMapPressed: () {
+                  _openMap(address.fullAddress);
+                },
+              );
+            },
+          );
+        },
+      ),
+    );
   }
 }

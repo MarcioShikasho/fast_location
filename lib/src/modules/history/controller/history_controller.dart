@@ -1,26 +1,20 @@
-import 'package:fast_location/src/modules/home/model/address_model.dart';
-//import 'package:fast_location/src/modules/home/service/home_service.dart';
 import 'package:mobx/mobx.dart';
+import '../../home/model/address_model.dart';
+import '../../home/service/address_service.dart';
+
 part 'history_controller.g.dart';
 
-class HistoryController = _HistoryController with _$HistoryController;
+class HistoryController = _HistoryControllerBase with _$HistoryController;
 
-abstract class _HistoryController with Store {
-  //final HomeService _service = HomeService();
-
-  @observable
-  bool isLoading = false;
+abstract class _HistoryControllerBase with Store {
+  final AddressService _service = AddressService();
 
   @observable
-  bool hasAddress = false;
-
-  @observable
-  List<AddressModel> addressHistoryList = [];
+  ObservableList<AddressModel> addresses = ObservableList<AddressModel>();
 
   @action
-  Future<void> loadData() async {
-    isLoading = true;
-    //addressHistoryList = await _service.getAddressHistoryList();
-    isLoading = false;
+  void loadAddresses() {
+    addresses.clear();
+    addresses.addAll(_service.getAddressHistory());
   }
 }

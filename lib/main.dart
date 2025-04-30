@@ -1,31 +1,38 @@
-import 'package:fast_location/src/modules/history/page/history_page.dart';
-import 'package:fast_location/src/modules/home/page/home_page.dart';
-import 'package:fast_location/src/modules/initial/page/initial_page.dart';
-import 'package:fast_location/src/routes/app_router.dart';
-import 'package:fast_location/src/shared/storage/hive_config.dart';
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-void main() {
+import 'src/modules/initial/page/initial_page.dart';
+import 'src/routes/app_routes.dart';
+import 'src/shared/colors/app_colors.dart';
+import 'src/modules/home/page/home_page.dart';
+import 'src/modules/history/page/history_page.dart';
+import 'src/shared/storage/app_storage.dart';
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  HiveConfig.initHiveDatabase();
-  runApp(const App());
+  
+  await Hive.initFlutter();
+  await AppStorage.init();
+  
+  runApp(const MyApp());
 }
 
-class App extends StatelessWidget {
-  const App({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Fast Location',
-      theme: ThemeData(
-        primarySwatch: Colors.green,
-      ),
-      home: const InitialPage(),
+      title: 'Consulta CEP',
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      initialRoute: AppRoutes.initial,
       routes: {
-        AppRouter.home: (context) => const HomePage(),
-        AppRouter.history: (context) => const HistoryPage(),
+        AppRoutes.initial: (context) => const InitialPage(),
+        AppRoutes.home: (context) => const HomePage(),
+        AppRoutes.history: (context) => const HistoryPage(),
       },
     );
   }
