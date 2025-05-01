@@ -34,31 +34,48 @@ class AddressItem extends StatelessWidget {
             ),
           ],
         ),
-        child: Column(
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16.0,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.0,
+                    ),
+                  ),
+                  const SizedBox(height: 8.0),
+                  Text(
+                    address,
+                    style: const TextStyle(
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 8.0),
+                  Text(
+                    date,
+                    style: const TextStyle(
+                      color: Colors.black54,
+                      fontSize: 12.0,
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 8.0),
-            Text(
-              address,
-              style: const TextStyle(
-                color: Colors.black87,
+            if (onMapPressed != null)
+              Align(
+                 alignment: Alignment.centerRight,
+                 child: IconButton(
+                   icon: const Icon(Icons.map),
+                   color: Theme.of(context).primaryColor,
+                   tooltip: 'Ver no mapa',
+                   onPressed: onMapPressed,
+                 ),
               ),
-            ),
-            const SizedBox(height: 8.0),
-            Text(
-              date,
-              style: const TextStyle(
-                color: Colors.black54,
-                fontSize: 12.0,
-              ),
-            ),
           ],
         ),
       ),

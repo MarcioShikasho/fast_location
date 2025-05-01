@@ -38,6 +38,13 @@ class AddressModel extends HiveObject {
   @HiveField(10)
   DateTime? searchDate;
   
+  @HiveField(11)
+  double? latitude;
+
+  @HiveField(12)
+  double? longitude;
+
+
   AddressModel({
     this.cep,
     this.logradouro,
@@ -50,9 +57,15 @@ class AddressModel extends HiveObject {
     this.ddd,
     this.siafi,
     this.searchDate,
+    this.latitude,
+    this.longitude,
   });
   
   factory AddressModel.fromJson(Map<String, dynamic> json) {
+     if (json.containsKey('erro') && json['erro'] == true) {
+        throw Exception('Endereço/CEP não encontrado.');
+    }
+
     return AddressModel(
       cep: json['cep'],
       logradouro: json['logradouro'],
@@ -65,10 +78,21 @@ class AddressModel extends HiveObject {
       ddd: json['ddd'],
       siafi: json['siafi'],
       searchDate: DateTime.now(),
+      latitude: json['latitude'] != null ? double.tryParse(json['latitude'].toString()) : null,
+      longitude: json['longitude'] != null ? double.tryParse(json['longitude'].toString()) : null,
     );
   }
   
   String get fullAddress {
-    return '$logradouro, $bairro, $localidade - $uf, $cep';
+    final parts = [
+      logradouro,
+      complemento,
+      bairro,
+      localidade,
+      uf,
+      cep,
+    ].where((part) => part != null && part.isNotEmpty).toList();
+
+    return parts.join(', ');
   }
 }

@@ -73,12 +73,58 @@ mixin _$HomeController on _HomeControllerBase, Store {
     });
   }
 
+  late final _$addressListAtom =
+      Atom(name: '_HomeControllerBase.addressList', context: context);
+
+  @override
+  ObservableList<AddressModel> get addressList {
+    _$addressListAtom.reportRead();
+    return super.addressList;
+  }
+
+  @override
+  set addressList(ObservableList<AddressModel> value) {
+    _$addressListAtom.reportWrite(value, super.addressList, () {
+      super.addressList = value;
+    });
+  }
+
   late final _$searchCepAsyncAction =
       AsyncAction('_HomeControllerBase.searchCep', context: context);
 
   @override
   Future<void> searchCep(String cep) {
     return _$searchCepAsyncAction.run(() => super.searchCep(cep));
+  }
+
+  late final _$searchCepByAddressAsyncAction =
+      AsyncAction('_HomeControllerBase.searchCepByAddress', context: context);
+
+  @override
+  Future<void> searchCepByAddress(
+      String uf, String localidade, String logradouro) {
+    return _$searchCepByAddressAsyncAction
+        .run(() => super.searchCepByAddress(uf, localidade, logradouro));
+  }
+
+  late final _$selectAddressFromListAsyncAction = AsyncAction(
+      '_HomeControllerBase.selectAddressFromList',
+      context: context);
+
+  @override
+  Future<void> selectAddressFromList(AddressModel address) {
+    return _$selectAddressFromListAsyncAction
+        .run(() => super.selectAddressFromList(address));
+  }
+
+  late final _$getDirectionsUrlForAddressAsyncAction = AsyncAction(
+      '_HomeControllerBase.getDirectionsUrlForAddress',
+      context: context);
+
+  @override
+  Future<String?> getDirectionsUrlForAddress(AddressModel address) {
+    return _$getDirectionsUrlForAddressAsyncAction
+        .run(() => super.getDirectionsUrlForAddress(address));
   }
 
   late final _$_HomeControllerBaseActionController =
@@ -101,7 +147,8 @@ mixin _$HomeController on _HomeControllerBase, Store {
 isLoading: ${isLoading},
 errorMessage: ${errorMessage},
 currentAddress: ${currentAddress},
-lastAddress: ${lastAddress}
+lastAddress: ${lastAddress},
+addressList: ${addressList}
     ''';
   }
 }

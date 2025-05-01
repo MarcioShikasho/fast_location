@@ -28,13 +28,15 @@ class AddressModelAdapter extends TypeAdapter<AddressModel> {
       ddd: fields[8] as String?,
       siafi: fields[9] as String?,
       searchDate: fields[10] as DateTime?,
+      latitude: fields[11] as double?,
+      longitude: fields[12] as double?,
     );
   }
 
   @override
   void write(BinaryWriter writer, AddressModel obj) {
     writer
-      ..writeByte(11)
+      ..writeByte(13)
       ..writeByte(0)
       ..write(obj.cep)
       ..writeByte(1)
@@ -56,7 +58,11 @@ class AddressModelAdapter extends TypeAdapter<AddressModel> {
       ..writeByte(9)
       ..write(obj.siafi)
       ..writeByte(10)
-      ..write(obj.searchDate);
+      ..write(obj.searchDate)
+      ..writeByte(11)
+      ..write(obj.latitude)
+      ..writeByte(12)
+      ..write(obj.longitude);
   }
 
   @override

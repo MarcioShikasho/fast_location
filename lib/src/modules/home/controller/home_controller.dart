@@ -21,6 +21,9 @@ abstract class _HomeControllerBase with Store {
   @observable
   AddressModel? lastAddress;
 
+  @observable
+  ObservableList<AddressModel> addressList = ObservableList<AddressModel>();
+
   _HomeControllerBase() {
     _loadLastAddress();
   }
@@ -30,7 +33,8 @@ abstract class _HomeControllerBase with Store {
     try {
       isLoading = true;
       errorMessage = null;
-      
+      addressList.clear();
+
       currentAddress = await _service.searchAddressByCep(cep);
       lastAddress = currentAddress;
     } catch (e) {
@@ -42,7 +46,56 @@ abstract class _HomeControllerBase with Store {
   }
 
   @action
+  Future<void> searchCepByAddress(String uf, String localidade, String logradouro) async {
+    try {
+      isLoading = true;
+      errorMessage = null;
+      currentAddress = null;
+      addressList.clear();
+
+      final results = await _service.searchAddressByAddress(uf, localidade, logradouro);
+
+      if (results.isNotEmpty) {
+        addressList.addAll(results);
+         errorMessage = null;
+      } else {
+        errorMessage = 'Nenhum CEP encontrado para o endereço informado.';
+         addressList.clear();
+      }
+
+    } catch (e) {
+       // Tratar exceções lançadas pelo Service (campos incompletos, UF inválida, não encontrado, erro de comunicação)
+       errorMessage = e.toString().replaceFirst('Exception: ', ''); // Remover prefixo "Exception:"
+       addressList.clear(); // Garantir que a lista esteja vazia em caso de erro
+    } finally {
+      isLoading = false;
+    }
+  }
+
+
+  @action
   void _loadLastAddress() {
     lastAddress = _service.getLastAddress();
   }
+  @action
+  Future<void> selectAddressFromList(AddressModel address) async {
+      currentAddress = address;
+      addressList.clear();
+      lastAddress = address; 
+      await _service.saveAddressToHistory(address); 
+  }
+
+  @action
+   Future<String?> getDirectionsUrlForAddress(AddressModel address) async {
+       isLoading = true; // Opcional: mostrar loading enquanto obtém o URL (geralmente rápido)
+       try {
+           final url = await _service.findDirectionsToAddressUrl(address);
+           return url;
+       } catch (e) {
+           print('Erro no Controller ao obter URL das direções: $e');
+           return null;
+       } finally {
+           isLoading = false; // Opcional: remover loading
+       }
+   }
 }
