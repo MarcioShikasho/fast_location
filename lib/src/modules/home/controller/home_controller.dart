@@ -64,9 +64,8 @@ abstract class _HomeControllerBase with Store {
       }
 
     } catch (e) {
-       // Tratar exceções lançadas pelo Service (campos incompletos, UF inválida, não encontrado, erro de comunicação)
-       errorMessage = e.toString().replaceFirst('Exception: ', ''); // Remover prefixo "Exception:"
-       addressList.clear(); // Garantir que a lista esteja vazia em caso de erro
+       errorMessage = e.toString().replaceFirst('Exception: ', ''); 
+       addressList.clear(); 
     } finally {
       isLoading = false;
     }
@@ -87,7 +86,7 @@ abstract class _HomeControllerBase with Store {
 
   @action
    Future<String?> getDirectionsUrlForAddress(AddressModel address) async {
-       isLoading = true; // Opcional: mostrar loading enquanto obtém o URL (geralmente rápido)
+       isLoading = true; 
        try {
            final url = await _service.findDirectionsToAddressUrl(address);
            return url;
@@ -95,7 +94,7 @@ abstract class _HomeControllerBase with Store {
            print('Erro no Controller ao obter URL das direções: $e');
            return null;
        } finally {
-           isLoading = false; // Opcional: remover loading
+           isLoading = false;
        }
    }
 }
